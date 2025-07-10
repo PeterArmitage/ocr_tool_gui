@@ -17,7 +17,7 @@ A powerful, user-friendly OCR (Optical Character Recognition) tool with clipboar
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/ocr-gui-enhanced.git
+git clone https://github.com/PeterArmitage/ocr-gui-enhanced.git
 cd ocr-gui-enhanced
 ```
 
@@ -29,6 +29,9 @@ pip install pytesseract pillow PyMuPDF
 
 # Export libraries (optional, for advanced export formats)
 pip install python-docx reportlab fpdf
+
+# Or just install the requirements file
+pip install -r requirements.txt
 ```
 
 ### 3. Install Tesseract OCR Engine
