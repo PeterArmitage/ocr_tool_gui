@@ -17,7 +17,7 @@ A powerful, user-friendly OCR (Optical Character Recognition) tool with clipboar
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/yourusername/ocr-gui-enhanced.git
+git clone https://github.com/PeterArmitage/ocr-gui-enhanced.git
 cd ocr-gui-enhanced
 ```
 
