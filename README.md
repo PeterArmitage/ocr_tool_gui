@@ -95,14 +95,6 @@ python ocr_gui.py
 
 ## ⚙️ Configuration Options
 
-### Languages Supported
-
-- **English** (eng) - Default
-- **Portuguese** (por)
-- **Spanish** (spa)
-- **French** (fra)
-- **German** (deu)
-
 ### Page Segmentation Modes (PSM)
 
 - **PSM 3**: Fully automatic page segmentation
