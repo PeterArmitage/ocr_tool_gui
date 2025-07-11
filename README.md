@@ -1,5 +1,7 @@
 # OCR Text Extractor - Enhanced GUI
 
+# This is a work in progress, there are some bugs!
+
 A powerful, user-friendly OCR (Optical Character Recognition) tool with clipboard integration and multiple export formats. Extract text from images, PDFs, and screenshots with ease!
 
 ## ✨ Features
@@ -29,6 +31,9 @@ pip install pytesseract pillow PyMuPDF
 
 # Export libraries (optional, for advanced export formats)
 pip install python-docx reportlab fpdf
+
+# Or just install the requirements file
+pip install -r requirements.txt
 ```
 
 ### 3. Install Tesseract OCR Engine
