@@ -42,8 +42,11 @@ class ImageProcessor:
         """
         img_np = np.array(img_pil.convert('L')) # Convert to grayscale for most processing
         
-        # --- Noise Reduction (Simple Median Blur) ---
-        img_np = cv2.medianBlur(img_np, 3) # Apply a 3x3 median filter
+        # --- Image Normalization ---
+        cv2.normalize(img_np, img_np, 0, 255, cv2.NORM_MINMAX)
+
+        # --- Noise Reduction (Advanced) ---
+        img_np = cv2.fastNlMeansDenoising(img_np, None, 10, 7, 21)
 
         # --- Deskewing ---
         if enable_deskew:
@@ -841,7 +844,7 @@ class EnhancedOCRGUI:
         
         file_path = filedialog.asksaveasfilename(
             title="Quick Save as Text",
-            initialname=filename,
+            initialfile=filename,
             defaultextension=".txt",
             filetypes=[("Text files", "*.txt")]
         )
@@ -875,7 +878,7 @@ class EnhancedOCRGUI:
         
         file_path = filedialog.asksaveasfilename(
             title=f"Export as {format_type.upper()}",
-            initialname=f"ocr_results_{timestamp}.{format_type}",
+            initialfile=f"ocr_results_{timestamp}.{format_type}",
             defaultextension=f".{format_type}",
             filetypes=[file_types[format_type], ("All files", "*.*")]
         )
@@ -904,40 +907,23 @@ class EnhancedOCRGUI:
             f.write(text)
     
     def export_pdf(self, file_path, text):
-        """Export as PDF"""
+        """Export as PDF using ReportLab with better text wrapping and encoding handling."""
         try:
-            from reportlab.pdfgen import canvas
+            from reportlab.platypus import SimpleDocTemplate, Paragraph
+            from reportlab.lib.styles import getSampleStyleSheet
             from reportlab.lib.pagesizes import letter
-            from reportlab.lib.utils import simpleSplit
             
-            c = canvas.Canvas(file_path, pagesize=letter)
-            width, height = letter
+            doc = SimpleDocTemplate(file_path, pagesize=letter)
+            styles = getSampleStyleSheet()
+            style = styles["Normal"]
             
-            # Set up text formatting
-            y = height - 50
-            line_height = 12
-            margin = 50
+            # Replace newlines with <br/> tags for Paragraph, which handles rich text.
+            formatted_text = text.replace('\n', '<br/>\n')
             
-            # Split text into lines
-            lines = text.split('\n')
+            story = [Paragraph(formatted_text, style)]
             
-            for line in lines:
-                if y < margin:
-                    c.showPage()
-                    y = height - 50
-                
-                # Handle long lines
-                wrapped_lines = simpleSplit(line, "Helvetica", 10, width - 2 * margin)
-                for wrapped_line in wrapped_lines:
-                    # Check for remaining space on current page
-                    if y < margin:
-                        c.showPage()
-                        y = height - 50
-                    c.drawString(margin, y, wrapped_line)
-                    y -= line_height
-            
-            c.save()
-            
+            doc.build(story)
+
         except ImportError:
             # Fallback to fpdf if reportlab not available
             try:
@@ -947,22 +933,17 @@ class EnhancedOCRGUI:
                 pdf.add_page()
                 pdf.set_font("Arial", size=10)
                 
-                # Add text line by line - ensure proper encoding for fpdf
-                # FPDF has limited Unicode support by default; 'latin-1' is common for simple cases.
-                # For full Unicode, custom fonts are needed, which is a more advanced topic.
-                for line in text.split('\n'):
-                    try:
-                        pdf.cell(0, 5, line, ln=True)
-                    except UnicodeEncodeError:
-                        # Fallback for characters not in current font/encoding
-                        pdf.cell(0, 5, line.encode('latin-1', 'replace').decode('latin-1'), ln=True)
+                # Use multi_cell for better text block handling
+                # Encode with 'latin-1' and replacement for compatibility with standard fonts
+                encoded_text = text.encode('latin-1', 'replace').decode('latin-1')
+                pdf.multi_cell(0, 5, txt=encoded_text)
 
                 pdf.output(file_path)
                 
             except ImportError:
                 raise ImportError("PDF export requires 'reportlab' or 'fpdf' library. Install with: pip install reportlab or pip install fpdf")
         except Exception as e:
-            raise Exception(f"Error during PDF export: {e}") # Re-raise for outer handler
+            raise Exception(f"Error during PDF export: {e}")
     
     def export_docx(self, file_path, text):
         """Export as Word document"""
@@ -989,7 +970,7 @@ class EnhancedOCRGUI:
         rtf_footer = "}"
         
         with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(f"{rtf_header}\f0\fs24 {rtf_content}{rtf_footer}")
+            f.write(f"{rtf_header}\\f0\\fs24 {rtf_content}{rtf_footer}")
     
     def export_html(self, file_path, text):
         """Export as HTML"""
