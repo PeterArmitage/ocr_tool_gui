@@ -1,4 +1,5 @@
 # OCR Text Extractor - Enhanced GUI
+# This is a work in progress, there are some bugs!
 
 A powerful, user-friendly OCR (Optical Character Recognition) tool with clipboard integration and multiple export formats. Extract text from images, PDFs, and screenshots with ease!
 
